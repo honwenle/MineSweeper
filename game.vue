@@ -3,7 +3,7 @@
         <ul v-for="y in mnm">
             <li v-for="x in y"
                 :class="{'isMine': (x['isMine'] && isOver), 'isSafe': x['isSafe'] || (isOver&&!x['isMine'])}"
-                @click="clickItem(x)">
+                @click="clickItem(x, $event)">
                 {{(x['isSafe'] || isOver) ? (x['numMine'] ? x['numMine'] : '') : ''}}
             </li>
         </ul>
@@ -20,7 +20,8 @@ export default {
         }
     },
     props: {
-        num: Number
+        num: Number,
+        mine: Number
     },
     mounted() {
         this.initGame();
@@ -34,13 +35,14 @@ export default {
                     tmp_mnm[y][x] = {
                         isMine: false,
                         isSafe: false,
+                        isMark: false,
                         x: x,
                         y: y,
                         numMine: 0
                     };
                 }
             }
-            for(let i = 0; i < this.num; i++) {
+            for(let i = 0; i < this.mine; i++) {
                 let idx = Math.round(Math.random() * this.num * this.num);
                 console.log(Math.floor(idx/this.num),idx%this.num)
                 tmp_mnm[Math.floor(idx/this.num)][idx%this.num]['isMine'] = true;
@@ -52,7 +54,12 @@ export default {
             }
             this.mnm = tmp_mnm;
         },
-        clickItem(item) {
+        clickItem(item, e) {
+            if (e.button == 2) {
+                tmp_mnm[item.y][item.x].isMark = true;
+                this.mnm = tmp_mnm;
+                return false;
+            }
             this.getAroundList(item.x, item.y)
             if (item['isMine']) {
                 console.log('GameOver')
