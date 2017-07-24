@@ -2,8 +2,9 @@
     <div>
         <ul v-for="y in mnm">
             <li v-for="x in y"
-                :class="{'isMine': (x['isMine'] && isOver), 'isSafe': x['isSafe']}"
+                :class="{'isMine': (x['isMine'] && isOver), 'isSafe': x['isSafe'] || (isOver&&!x['isMine'])}"
                 @click="clickItem(x)">
+                {{x['isSafe'] ? (x['numMine'] ? x['numMine'] : '') : ''}}
             </li>
         </ul>
     </div>
@@ -33,12 +34,13 @@ export default {
                         isMine: false,
                         isSafe: false,
                         x: x,
-                        y: y
+                        y: y,
+                        numMine: 0
                     };
                 }
             }
             for(let i = 0; i < this.num; i++) {
-                let idx = Math.round(Math.random() * (this.num * this.num + 1));
+                let idx = Math.round(Math.random() * this.num * this.num);
                 console.log(Math.floor(idx/this.num),idx%this.num)
                 tmp_mnm[Math.floor(idx/this.num)][idx%this.num]['isMine'] = true;
             }
@@ -49,11 +51,42 @@ export default {
                 console.log('GameOver')
                 this.isOver = true;
             } else {
-                // TODO: 计算显示
                 let tmp_mnm = this.mnm;
                 tmp_mnm[item.y][item.x].isSafe = true;
+                tmp_mnm[item.y][item.x].numMine = this.countMine(item);
                 this.mnm = tmp_mnm;
             }
+        },
+        countMine(item) {
+            // todo 统计周围8个里isMine的个数
+            let count = 0,
+                x = item.x,
+                y = item.y;
+            if (y-1 >= 0 && x-1 >= 0 && this.mnm[y-1][x-1]['isMine']) {
+                count++;
+            }
+            if (y-1 >= 0 && this.mnm[y-1][x]['isMine']) {
+                count++;
+            }
+            if (y-1 >= 0 && x+1 < this.num && this.mnm[y-1][x+1]['isMine']) {
+                count++;
+            }
+            if (x+1 < this.num && this.mnm[y][x+1]['isMine']) {
+                count++;
+            }
+            if (y+1 < this.num && x+1 < this.num && this.mnm[y+1][x+1]['isMine']) {
+                count++;
+            }
+            if (y+1 < this.num && this.mnm[y+1][x]['isMine']) {
+                count++;
+            }
+            if (y+1 < this.num && x-1 >= 0 && this.mnm[y+1][x-1]['isMine']) {
+                count++;
+            }
+            if (x-1 >= 0 && this.mnm[y][x-1]['isMine']) {
+                count++;
+            }
+            return count;
         }
     }
 }
