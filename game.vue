@@ -15,7 +15,8 @@ export default {
         return {
             mnm: [],
             isOver: false,
-            step: 0
+            step: 0,
+            initOver: false
         }
     },
     props: {
@@ -59,10 +60,11 @@ export default {
             } else {
                 let tmp_mnm = this.mnm;
                 tmp_mnm[item.y][item.x].isSafe = true;
+                this.mnm = tmp_mnm;
                 if (tmp_mnm[item.y][item.x].numMine == 0) {
                     this.checkAround(tmp_mnm, item.x, item.y);
                 }
-                this.mnm = tmp_mnm;
+                this.initOver = true;
             }
         },
         countMine(tmp_mnm, item) {
@@ -104,15 +106,21 @@ export default {
             return list;
         },
         exceptList(x, y, list) {
-            // TODO: 判断该坐标不在已安全列表
-            list.push([x, y]);
+            if (this.initOver) {
+                if (!this.mnm[y][x].isSafe) {
+                    list.push([x, y]);
+                }
+            } else {
+                list.push([x, y]);
+            }
         },
         checkAround(tmp_mnm, x, y) {
             let arr = this.getAroundList(x, y);
             arr.forEach(function([ix, iy]) {
                 tmp_mnm[iy][ix].isSafe = true;
+                this.mnm = tmp_mnm;
                 if (tmp_mnm[iy][ix]['numMine'] == 0) {
-                    // this.checkAround(tmp_mnm, ix, iy);
+                    this.checkAround(tmp_mnm, ix, iy);
                 }
             }, this);
         }
