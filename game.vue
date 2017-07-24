@@ -15,7 +15,8 @@ export default {
         return {
             mnm: [],
             isOver: false,
-            step: 0
+            step: 0,
+            initOver: false
         }
     },
     props: {
@@ -59,10 +60,11 @@ export default {
             } else {
                 let tmp_mnm = this.mnm;
                 tmp_mnm[item.y][item.x].isSafe = true;
+                this.mnm = tmp_mnm;
                 if (tmp_mnm[item.y][item.x].numMine == 0) {
                     this.checkAround(tmp_mnm, item.x, item.y);
                 }
-                this.mnm = tmp_mnm;
+                this.initOver = true;
             }
         },
         countMine(tmp_mnm, item) {
@@ -76,6 +78,7 @@ export default {
             return count;
         },
         getAroundList(x, y) {
+            console.log('被查者:'+y+','+x)
             let list = [];
             if (x > 0) {
                 this.exceptList(x-1,y, list);
@@ -104,15 +107,24 @@ export default {
             return list;
         },
         exceptList(x, y, list) {
-            // TODO: 判断该坐标不在已安全列表
-            list.push([x, y]);
+            if (this.initOver) {
+                console.log('周围:'+y+','+x+'。安全:'+this.mnm[y][x].isSafe)
+                if (!this.mnm[y][x].isSafe) {
+                    list.push([x, y]);
+                }
+            } else {
+                list.push([x, y]);
+            }
         },
         checkAround(tmp_mnm, x, y) {
             let arr = this.getAroundList(x, y);
             arr.forEach(function([ix, iy]) {
                 tmp_mnm[iy][ix].isSafe = true;
+                this.mnm = tmp_mnm;
                 if (tmp_mnm[iy][ix]['numMine'] == 0) {
-                    // this.checkAround(tmp_mnm, ix, iy);
+                    this.$nextTick(() => {
+                        this.checkAround(tmp_mnm, ix, iy);
+                    })
                 }
             }, this);
         }
@@ -138,5 +150,8 @@ export default {
         height: 50px;
         background: #666;
         float: left;
+        text-align: center;
+        line-height: 50px;
+        font-size: 18px;
     }
 </style>
