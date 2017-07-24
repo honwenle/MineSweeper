@@ -52,6 +52,7 @@ export default {
             this.mnm = tmp_mnm;
         },
         clickItem(item) {
+            this.getAroundList(item.x, item.y)
             if (item['isMine']) {
                 console.log('GameOver')
                 this.isOver = true;
@@ -59,46 +60,61 @@ export default {
                 let tmp_mnm = this.mnm;
                 tmp_mnm[item.y][item.x].isSafe = true;
                 if (tmp_mnm[item.y][item.x].numMine == 0) {
-                    this.checkAround();
+                    this.checkAround(tmp_mnm, item.x, item.y);
                 }
                 this.mnm = tmp_mnm;
             }
         },
         countMine(tmp_mnm, item) {
-            let count = 0,
-                x = item.x,
-                y = item.y;
-            if (y-1 >= 0 && x-1 >= 0 && tmp_mnm[y-1][x-1]['isMine']) {
-                count++;
-            }
-            if (y-1 >= 0 && tmp_mnm[y-1][x]['isMine']) {
-                count++;
-            }
-            if (y-1 >= 0 && x+1 < this.num && tmp_mnm[y-1][x+1]['isMine']) {
-                count++;
-            }
-            if (x+1 < this.num && tmp_mnm[y][x+1]['isMine']) {
-                count++;
-            }
-            if (y+1 < this.num && x+1 < this.num && tmp_mnm[y+1][x+1]['isMine']) {
-                count++;
-            }
-            if (y+1 < this.num && tmp_mnm[y+1][x]['isMine']) {
-                count++;
-            }
-            if (y+1 < this.num && x-1 >= 0 && tmp_mnm[y+1][x-1]['isMine']) {
-                count++;
-            }
-            if (x-1 >= 0 && tmp_mnm[y][x-1]['isMine']) {
-                count++;
-            }
+            let count = 0;
+            let arr = this.getAroundList(item.x, item.y);
+            arr.forEach(function([x, y]) {
+                if (tmp_mnm[y][x]['isMine']) {
+                    count++;
+                }
+            }, this);
             return count;
         },
-        getAroundList() {
-            // TODO: 获取周边坐标列表
+        getAroundList(x, y) {
+            let list = [];
+            if (x > 0) {
+                this.exceptList(x-1,y, list);
+                if (y > 0) {
+                    this.exceptList(x-1, y-1, list);
+                }
+            }
+            if (y > 0) {
+                this.exceptList(x, y-1, list);
+                if (x+1 < this.num) {
+                    this.exceptList(x+1, y-1, list);
+                }
+            }
+            if (x+1 < this.num) {
+                this.exceptList(x+1, y, list);
+                if (y+1 < this.num) {
+                    this.exceptList(x+1, y+1, list);
+                }
+            }
+            if (y+1 < this.num) {
+                this.exceptList(x, y+1, list);
+                if (x > 0) {
+                    this.exceptList(x-1, y+1, list);
+                }
+            }
+            return list;
         },
-        checkAround() {
-            // TODO: 检测周围 如果数值=0，递归checkAround
+        exceptList(x, y, list) {
+            // TODO: 判断该坐标不在已安全列表
+            list.push([x, y]);
+        },
+        checkAround(tmp_mnm, x, y) {
+            let arr = this.getAroundList(x, y);
+            arr.forEach(function([ix, iy]) {
+                tmp_mnm[iy][ix].isSafe = true;
+                if (tmp_mnm[iy][ix]['numMine'] == 0) {
+                    // this.checkAround(tmp_mnm, ix, iy);
+                }
+            }, this);
         }
     }
 }
