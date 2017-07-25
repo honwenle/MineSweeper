@@ -45,11 +45,15 @@ export default {
                     };
                 }
             }
+            let tmp_mine = {}, idx;
             for(let i = 0; i < this.mine; i++) {
-                let idx = Math.round(Math.random() * this.num * this.num);
-                console.log(Math.floor(idx/this.num),idx%this.num)
+                do {
+                    idx = Math.floor(Math.random() * this.num * this.num);
+                } while (idx in tmp_mine);
+                tmp_mine[idx] = true;
                 tmp_mnm[Math.floor(idx/this.num)][idx%this.num]['isMine'] = true;
             }
+            console.log(tmp_mine)
             for(let y = 0; y < this.num; y++) {
                 for(let x = 0; x < this.num; x++) {
                     tmp_mnm[y][x].numMine = this.countMine(tmp_mnm, tmp_mnm[y][x]);
