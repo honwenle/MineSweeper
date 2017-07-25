@@ -1,6 +1,6 @@
 <template>
     <div>
-        <ul v-for="y in mnm">
+        <ul class="mine-map" v-for="y in mnm">
             <li v-for="x in y"
                 :class="{'isMine': (x['isMine'] && isOver),
                     'isSafe': x['isSafe'] || (isOver&&!x['isMine']),
@@ -10,6 +10,11 @@
                 {{(x['isSafe'] || isOver) ? (x['numMine'] ? x['numMine'] : '') : ''}}
             </li>
         </ul>
+        <ol class="rule">
+            <li>左键翻开，格子上的数字表示周围地雷个数</li>
+            <li>右键标记地雷</li>
+            <li>双击快速翻开周围格子(未完成)</li>
+        </ol>
         <div class="win" v-if="numSafe == (num*num - mine)">You Win !</div>
         <div class="over" v-if="isOver">Game Over !</div>
     </div>
@@ -151,21 +156,21 @@ export default {
 }
 </script>
 <style>
-    .isMark{
+    .mine-map li.isMark{
         background: #0f0;
     }
-    .isMine{
+    .mine-map li.isMine{
         background: #f00;
     }
-    .isSafe{
+    .mine-map li.isSafe{
         background: #bbb;
     }
-    ul{
+    ul.mine-map{
         margin: 0 auto;
         -webkit-padding-start: 0;
         overflow: hidden;
     }
-    li{
+    .mine-map li{
         list-style: none;
         border: 1px solid #eee;
         width: 50px;
