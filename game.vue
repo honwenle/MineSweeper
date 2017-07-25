@@ -61,7 +61,6 @@ export default {
                 tmp_mine[idx] = true;
                 tmp_mnm[Math.floor(idx/this.num)][idx%this.num]['isMine'] = true;
             }
-            console.log(tmp_mine)
             for(let y = 0; y < this.num; y++) {
                 for(let x = 0; x < this.num; x++) {
                     tmp_mnm[y][x].numMine = this.countMine(tmp_mnm, tmp_mnm[y][x]);
@@ -77,7 +76,6 @@ export default {
         clickItem(item) {
             this.getAroundList(item.x, item.y)
             if (item['isMine']) {
-                console.log('GameOver')
                 this.isOver = true;
             } else {
                 let tmp_mnm = this.mnm;
@@ -101,7 +99,6 @@ export default {
             return count;
         },
         getAroundList(x, y) {
-            // console.log('被查者:'+y+','+x)
             let list = [];
             if (x > 0) {
                 this.exceptList(x-1,y, list);
@@ -131,7 +128,6 @@ export default {
         },
         exceptList(x, y, list) {
             if (this.initOver) {
-                console.log('周围:'+y+','+x+'。安全:'+this.mnm[y][x].isSafe)
                 if (!this.mnm[y][x].isSafe) {
                     list.push([x, y]);
                 }
