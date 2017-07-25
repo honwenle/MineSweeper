@@ -10,6 +10,8 @@
                 {{(x['isSafe'] || isOver) ? (x['numMine'] ? x['numMine'] : '') : ''}}
             </li>
         </ul>
+        <div class="win" v-if="numSafe == (num*num - mine)">You Win !</div>
+        <div class="over" v-if="isOver">Game Over !</div>
     </div>
 </template>
 <script>
@@ -19,7 +21,8 @@ export default {
             mnm: [],
             isOver: false,
             step: 0,
-            initOver: false
+            initOver: false,
+            numSafe: 0
         }
     },
     props: {
@@ -74,6 +77,7 @@ export default {
             } else {
                 let tmp_mnm = this.mnm;
                 tmp_mnm[item.y][item.x].isSafe = true;
+                this.numSafe++;
                 this.mnm = tmp_mnm;
                 if (tmp_mnm[item.y][item.x].numMine == 0) {
                     this.checkAround(tmp_mnm, item.x, item.y);
@@ -134,6 +138,7 @@ export default {
             let arr = this.getAroundList(x, y);
             arr.forEach(function([ix, iy]) {
                 tmp_mnm[iy][ix].isSafe = true;
+                this.numSafe++;
                 this.mnm = tmp_mnm;
                 if (tmp_mnm[iy][ix]['numMine'] == 0) {
                     this.$nextTick(() => {
