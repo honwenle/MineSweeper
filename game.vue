@@ -2,8 +2,11 @@
     <div>
         <ul v-for="y in mnm">
             <li v-for="x in y"
-                :class="{'isMine': (x['isMine'] && isOver), 'isSafe': x['isSafe'] || (isOver&&!x['isMine'])}"
-                @click="clickItem(x, $event)">
+                :class="{'isMine': (x['isMine'] && isOver),
+                    'isSafe': x['isSafe'] || (isOver&&!x['isMine']),
+                    'isMark': x['isMark']}"
+                @click="clickItem(x)"
+                @contextmenu.prevent="rightClick(x)" >
                 {{(x['isSafe'] || isOver) ? (x['numMine'] ? x['numMine'] : '') : ''}}
             </li>
         </ul>
@@ -54,12 +57,12 @@ export default {
             }
             this.mnm = tmp_mnm;
         },
-        clickItem(item, e) {
-            if (e.button == 2) {
-                tmp_mnm[item.y][item.x].isMark = true;
-                this.mnm = tmp_mnm;
-                return false;
-            }
+        rightClick(item) {
+            let tmp_mnm = this.mnm;
+            tmp_mnm[item.y][item.x].isMark = !tmp_mnm[item.y][item.x].isMark;
+            this.mnm = tmp_mnm;
+        },
+        clickItem(item) {
             this.getAroundList(item.x, item.y)
             if (item['isMine']) {
                 console.log('GameOver')
@@ -85,7 +88,7 @@ export default {
             return count;
         },
         getAroundList(x, y) {
-            console.log('被查者:'+y+','+x)
+            // console.log('被查者:'+y+','+x)
             let list = [];
             if (x > 0) {
                 this.exceptList(x-1,y, list);
@@ -139,6 +142,9 @@ export default {
 }
 </script>
 <style>
+    .isMark{
+        background: #0f0;
+    }
     .isMine{
         background: #f00;
     }
