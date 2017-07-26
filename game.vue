@@ -15,7 +15,7 @@
             <li>右键标记地雷</li>
             <li>双击快速翻开周围格子(未完成)</li>
         </ol>
-        <div class="win" v-if="numSafe == (num*num - mine)">You Win !</div>
+        <div class="win" v-if="numSafe >= (num*num - mine)">You Win !</div>
         <div class="over" v-if="isOver">Game Over !</div>
     </div>
 </template>
