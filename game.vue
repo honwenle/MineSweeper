@@ -6,6 +6,7 @@
                     'isSafe': x['isSafe'] || (isOver&&!x['isMine']),
                     'isMark': x['isMark']}"
                 @click="clickItem(x)"
+                @dblclick="doubleClick(x)"
                 @contextmenu.prevent="rightClick(x)" >
                 {{(x['isSafe'] || isOver) ? (x['numMine'] ? x['numMine'] : '') : ''}}
             </li>
@@ -13,7 +14,7 @@
         <ol class="rule">
             <li>左键翻开，格子上的数字表示周围地雷个数</li>
             <li>右键标记地雷</li>
-            <li>双击快速翻开周围格子(未完成)</li>
+            <li>双击快速翻开周围格子</li>
         </ol>
         <div class="win" v-if="numSafe >= (num*num - mine)">You Win !</div>
         <div class="over" v-if="isOver">Game Over !</div>
@@ -26,7 +27,6 @@ export default {
             mnm: [],
             isOver: false,
             step: 0,
-            initOver: false,
             numSafe: 0
         }
     },
@@ -68,6 +68,34 @@ export default {
             }
             this.mnm = tmp_mnm;
         },
+        doubleClick(item) {
+            let arr = this.getAroundList(item.x, item.y);
+            let _this = this;
+            let thelist = [], numMark = 0;
+            arr.forEach(function ([ix, iy]) {
+                if (_this.mnm[iy][ix].isMark) {
+                    numMark++;
+                } else {
+                    if (!_this.mnm[iy][ix].isSafe) {
+                        thelist.push([ix,iy]);
+                    }
+                }
+            });
+            if (this.mnm[item.y][item.x].numMine == numMark) {
+                thelist.forEach(function ([ix, iy]) {
+                    if (_this.mnm[iy][ix].isMine) {
+                        _this.isOver = true;
+                    } else {
+                        let tmp_mnm = _this.mnm;
+                        if (!tmp_mnm[iy][ix].isSafe) {
+                            tmp_mnm[iy][ix].isSafe = true;
+                            _this.numSafe++;
+                        }
+                        _this.mnm = tmp_mnm;
+                    }
+                });
+            }
+        },
         rightClick(item) {
             let tmp_mnm = this.mnm;
             tmp_mnm[item.y][item.x].isMark = !tmp_mnm[item.y][item.x].isMark;
@@ -79,13 +107,14 @@ export default {
                 this.isOver = true;
             } else {
                 let tmp_mnm = this.mnm;
-                tmp_mnm[item.y][item.x].isSafe = true;
-                this.numSafe++;
+                if (!tmp_mnm[item.y][item.x].isSafe) {
+                    tmp_mnm[item.y][item.x].isSafe = true;
+                    this.numSafe++;
+                }
                 this.mnm = tmp_mnm;
                 if (tmp_mnm[item.y][item.x].numMine == 0) {
                     this.checkAround(tmp_mnm, item.x, item.y);
                 }
-                this.initOver = true;
             }
         },
         countMine(tmp_mnm, item) {
@@ -101,45 +130,49 @@ export default {
         getAroundList(x, y) {
             let list = [];
             if (x > 0) {
-                this.exceptList(x-1,y, list);
+                list.push([x-1,y]);
                 if (y > 0) {
-                    this.exceptList(x-1, y-1, list);
+                    list.push([x-1, y-1]);
                 }
             }
             if (y > 0) {
-                this.exceptList(x, y-1, list);
+                list.push([x, y-1]);
                 if (x+1 < this.num) {
-                    this.exceptList(x+1, y-1, list);
+                    list.push([x+1, y-1]);
                 }
             }
             if (x+1 < this.num) {
-                this.exceptList(x+1, y, list);
+                list.push([x+1, y]);
                 if (y+1 < this.num) {
-                    this.exceptList(x+1, y+1, list);
+                    list.push([x+1, y+1]);
                 }
             }
             if (y+1 < this.num) {
-                this.exceptList(x, y+1, list);
+                list.push([x, y+1]);
                 if (x > 0) {
-                    this.exceptList(x-1, y+1, list);
+                    list.push([x-1, y+1]);
                 }
             }
             return list;
         },
-        exceptList(x, y, list) {
-            if (this.initOver) {
-                if (!this.mnm[y][x].isSafe) {
-                    list.push([x, y]);
+        exceptList(x, y) {
+            let list = this.getAroundList(x, y);
+            let thelist = [];
+            let _this = this;
+            list.forEach(function ([ix, iy]) {
+                if (!_this.mnm[iy][ix].isSafe) {
+                    thelist.push([ix,iy]);
                 }
-            } else {
-                list.push([x, y]);
-            }
+            });
+            return thelist;
         },
         checkAround(tmp_mnm, x, y) {
-            let arr = this.getAroundList(x, y);
+            let arr = this.exceptList(x, y);
             arr.forEach(function([ix, iy]) {
-                tmp_mnm[iy][ix].isSafe = true;
-                this.numSafe++;
+                if (!tmp_mnm[iy][ix].isSafe) {
+                    tmp_mnm[iy][ix].isSafe = true;
+                    this.numSafe++;
+                }
                 this.mnm = tmp_mnm;
                 if (tmp_mnm[iy][ix]['numMine'] == 0) {
                     this.$nextTick(() => {
