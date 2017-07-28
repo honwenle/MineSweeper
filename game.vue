@@ -92,6 +92,9 @@ export default {
                             _this.numSafe++;
                         }
                         _this.mnm = tmp_mnm;
+                        if (tmp_mnm[iy][ix].numMine == 0) {
+                            _this.checkAround(tmp_mnm, ix, iy);
+                        }
                     }
                 });
             }
