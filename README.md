@@ -1,4 +1,6 @@
 # MineSweeper
 小练习 扫雷
-# Run
+# 开发Run
 `vue build index.vue`
+# 打包
+`npm run build`
